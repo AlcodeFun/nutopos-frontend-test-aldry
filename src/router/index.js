@@ -8,11 +8,6 @@ const router = createRouter({
       name: 'home',
       component: () => import('../views/Home.vue'),
     },
-    {
-      path: '/create-discount',
-      name: 'create-discount',
-      component: () => import('../views/CreateDiscount.vue'),
-    },
   ],
 })
 
