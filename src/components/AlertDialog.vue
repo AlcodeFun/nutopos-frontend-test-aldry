@@ -1,14 +1,12 @@
 <template>
-  <md-dialog ref="dlg" class="alert-dialog" @closed="visible = false">
-    <div slot="content" class="content" :class="kind">
+  <transition name="fade">
+    <div v-if="visible" class="alert-box" :class="kind" role="alert">
       <span class="msg">{{ message }}</span>
     </div>
-  </md-dialog>
+  </transition>
 </template>
 
 <script>
-import '@material/web/dialog/dialog.js'
-
 export default {
   name: 'AlertDialog',
   data: () => ({
@@ -24,65 +22,58 @@ export default {
       this.visible = true
       clearTimeout(this.timer)
 
-      this.$refs.dlg?.show()
       this.timer = setTimeout(() => this.hide(), duration)
     },
     hide() {
       clearTimeout(this.timer)
-      this.$refs.dlg?.close()
+      this.visible = false
     },
   },
 }
 </script>
 
 <style scoped>
-.alert-dialog::part(scrim) {
-  display: none !important;
-}
-
-.alert-dialog::part(container) {
+/* container */
+.alert-box {
   position: fixed;
   top: 16px;
   left: 50%;
   transform: translateX(-50%);
-  margin: 0; /* override default centering gaps */
-  border-radius: 16px;
-  padding: 0; /* we style the inner .content */
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
-  border: none;
-  background: transparent; /* let .content provide bg */
-}
-
-/* Allow clicking through except on the pill itself */
-.alert-dialog {
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: 500;
+  font-size: 14px;
+  text-align: center;
+  z-index: 9999;
+  max-width: 90vw;
   pointer-events: none;
 }
-.alert-dialog::part(container) {
-  pointer-events: auto;
-}
 
-/* Pill */
-.content {
-  color: #fff;
-  padding: 12px 18px;
-  border-radius: 16px;
-  font-weight: 600;
-  max-width: 85vw;
-  text-align: left;
+/* kinds */
+.alert-box.success {
+  background: #146d62;
 }
-
-/* Kinds */
-.content.success {
-  background: #1e6d61;
-} /* matches your mock */
-.content.error {
+.alert-box.error {
   background: #b3261e;
 }
-.content.info {
+.alert-box.info {
   background: #3558a5;
 }
 
+/* text */
 .msg {
   white-space: pre-line;
+}
+
+/* fade animation */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translate(-50%, -10px);
 }
 </style>

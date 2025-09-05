@@ -56,6 +56,9 @@ export default {
 
 
 <style scoped>
+.confirm-delete-dialog {
+  --md-dialog-container-color: #fff;
+}
 .cd-headline {
   font-size: 22px;
   font-weight: 700;
@@ -77,9 +80,12 @@ export default {
 
 /* Buttons styling to match the mock */
 .cd-cancel {
-  --md-outlined-button-container-shape: 9999px;
+  --md-outlined-button-container-shape: 20px;
+  --md-outlined-button-label-text-font: system-ui;
   --md-sys-color-primary: #ff3553;
-  border-radius: 9999px;
+  --md-sys-color-outline: #fff;
+  border-radius: 20px;
+  border: 1px solid #ff3553;
 }
 
 .cd-delete {

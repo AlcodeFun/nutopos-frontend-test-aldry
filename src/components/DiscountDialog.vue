@@ -1,7 +1,7 @@
 <template>
   <div>
     <AlertDialog ref="alert" />
- 
+
     <md-dialog ref="dialogRef" class="discount-dialog">
       <span slot="headline" class="dlg-headline">
         <span class="title">{{ isEdit ? 'Edit Diskon' : 'Tambah Diskon' }}</span>
@@ -11,7 +11,6 @@
       </span>
 
       <form id="discountForm" slot="content" class="dlg-content" @submit.prevent="onSave">
-    
         <md-outlined-text-field
           class="discount-name w-full"
           :value="form.discount_name"
@@ -21,11 +20,9 @@
           :error="!!errors.name"
           :error-text="errors.name"
         >
-         
           <md-icon v-if="errors.name" slot="trailing-icon">error</md-icon>
         </md-outlined-text-field>
 
-     
         <div class="field">
           <div class="discount-row">
             <div class="amount-wrap">
@@ -310,6 +307,7 @@ export default {
   --md-sys-color-surface-container-highest: #dde4e3;
   --md-sys-color-on-surface: #161d1d;
   --md-sys-color-on-surface-variant: #3f4948;
+  --md-dialog-container-color: #fff;
 }
 .dlg-headline {
   display: flex;

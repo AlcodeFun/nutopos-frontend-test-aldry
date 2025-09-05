@@ -82,7 +82,7 @@
                 <md-icon class="chevron-icon">keyboard_arrow_down</md-icon>
               </button>
 
-              <md-menu ref="apiMenu">
+              <md-menu class="apiMenu" ref="apiMenu">
                 <md-menu-item keep-open>
                   <div slot="headline" style="min-width: 320px; width: 100%">
                     <md-outlined-text-field
@@ -123,11 +123,12 @@
                       role="columnheader"
                       scope="col"
                     >
-                      <input
-                        class="check-delete"
-                        type="checkbox"
-                        v-model="selectAll"
-                        @change="toggleAll"
+                      <md-checkbox
+                        :checked="allOnPageChecked"
+                        :indeterminate="someOnPageChecked && !allOnPageChecked"
+                        touch-target="wrapper"
+                        @change="toggleAllFromHeader"
+                        id="check-delete"
                       />
                     </th>
                     <th
@@ -160,7 +161,12 @@
                     class="mdc-data-table__row"
                   >
                     <td class="mdc-data-table__cell mdc-data-table__cell--checkbox">
-                      <input type="checkbox" v-model="selected" :value="item._id" />
+                      <md-checkbox
+                        :checked="selected.includes(item._id || item.id)"
+                        touch-target="wrapper"
+                        @change="toggleOne(item, $event)"
+                        id="check-delete"
+                      />
                     </td>
                     <td class="mdc-data-table__cell">
                       {{ item.discount_name }}
@@ -296,14 +302,12 @@ export default {
       return this.discounts.length
     },
 
-    // 1) Filter (use empty string fallback, not "test")
     filteredDiscounts() {
       return this.discounts.filter((d) =>
         (d.discount_name || '').toLowerCase().includes(this.search.toLowerCase())
       )
     },
 
-    // 2) Sort filtered list
     sortedDiscounts() {
       const arr = [...this.filteredDiscounts]
       if (this.sortKey === 'discount_name') {
@@ -317,18 +321,15 @@ export default {
       return arr
     },
 
-    // 3) Compute total pages from the *sorted* list
     totalPages() {
       return Math.ceil(this.sortedDiscounts.length / this.perPage) || 1
     },
 
-    // 4) Paginate the *sorted* list (only one definition!)
     paginatedDiscounts() {
       const start = (this.page - 1) * this.perPage
       return this.sortedDiscounts.slice(start, start + this.perPage)
     },
 
-    // (unchanged) compact page-number model
     pagesToShow() {
       const total = this.totalPages
       const p = this.page
@@ -342,6 +343,19 @@ export default {
       if (end < total - 1) out.push('...')
       out.push(total)
       return out
+    },
+    idsOnPage() {
+      return this.paginatedDiscounts.map((d) => d._id || d.id)
+    },
+    allOnPageChecked() {
+      const ids = this.idsOnPage
+      if (!ids.length) return false
+      return ids.every((id) => this.selected.includes(id))
+    },
+    someOnPageChecked() {
+      const ids = this.idsOnPage
+      if (!ids.length) return false
+      return ids.some((id) => this.selected.includes(id))
     },
   },
 
@@ -412,6 +426,30 @@ export default {
       this.apiUrl = url
       this.$refs.apiMenu.open = false
       await this.fetchDiscounts()
+    },
+    toggleAllFromHeader(e) {
+      const checked = e.target.checked
+      const ids = this.idsOnPage
+      if (checked) {
+        // Add all ids on current page (avoid duplicates)
+        const set = new Set([...this.selected, ...ids])
+        this.selected = Array.from(set)
+      } else {
+        // Remove all ids on current page
+        this.selected = this.selected.filter((id) => !ids.includes(id))
+      }
+      this.updateHeaderState()
+    },
+
+    toggleOne(item, e) {
+      const id = item._id || item.id
+      const checked = e.target.checked
+      if (checked) {
+        if (!this.selected.includes(id)) this.selected.push(id)
+      } else {
+        this.selected = this.selected.filter((x) => x !== id)
+      }
+      this.updateHeaderState()
     },
 
     toggleAll() {
@@ -574,7 +612,26 @@ export default {
   --md-sys-color-primary: #3dae2f;
 }
 .check-delete {
+  accent-color: #3dae2f;
+  color: #fff;
+  padding: 10px;
+}
+
+/* Make checkbox checkmark white */
+input[type='checkbox'] {
+  accent-color: #3dae2f;
+  color-scheme: #fff;
+}
+
+/* For browsers that don't support accent-color, fallback: */
+input[type='checkbox']::-webkit-checkmark {
   background-color: #3dae2f;
+  border-color: #3dae2f;
+  color: #fff;
+}
+input[type='checkbox']:checked {
+  background-color: #3dae2f;
+  border-color: #3dae2f;
 }
 
 .tag-new {
@@ -657,5 +714,13 @@ export default {
 .page-ellipsis {
   color: #98a2a8;
   padding: 0 2px;
+}
+
+#check-delete {
+  --md-sys-color-primary: #3dae2f;
+}
+
+.apiMenu {
+  --md-menu-container-color: #fff;
 }
 </style>
